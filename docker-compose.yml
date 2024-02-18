@@ -1,0 +1,51 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  backend:
+    build: 
+      context: ./drf2
+    #image: amarsabbisetti/project_bd:latest
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+       - static:/static
+    depends_on:
+      - db
+
+  frontend:
+    build: 
+      context: ./frontend
+    #image: amarsabbisetti/project_fd:latest
+    volumes:
+      - frontend:/app/build
+    ports:
+      - "3000:3000"
+
+  nginx:
+    build: 
+      context: ./nginx
+    # image: amarsabbisetti/nginx_travels:latest
+    ports:
+      - "80:80"
+    volumes:
+      - static:/static
+      - frontend:/var/www/frontend
+    depends_on:
+      - backend
+      - frontend
+volumes:
+  db:
+  static:
+  frontend:
+
+
